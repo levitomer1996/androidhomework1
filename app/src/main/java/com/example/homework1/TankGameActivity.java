@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.ImageView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.button.MaterialButton;
 
 import java.util.Random;
@@ -26,10 +28,9 @@ public class TankGameActivity extends AppCompatActivity {
 
     private int[] rocketsOnBoard;
 
-
     private CountDownTimer gameTimer;
-    private MaterialButton leftButton = findViewById(R.id.left_button);
-    private  MaterialButton rightButton = findViewById(R.id.right_button);
+    private MaterialButton leftButton;
+    private MaterialButton rightButton;
     public static final int DELAY = 1000;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -38,6 +39,9 @@ public class TankGameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tank_game);
 
+        leftButton = findViewById(R.id.left_button);
+        rightButton = findViewById(R.id.right_button);
+
         // Setting tank component at the center
         ImageView tankcol_0 = findViewById(R.id.row3col0);
         tankcol_0.setVisibility(View.INVISIBLE);
@@ -45,7 +49,6 @@ public class TankGameActivity extends AppCompatActivity {
         ImageView tankcol_1 = findViewById(R.id.row3col1);
         ImageView tankcol_2 = findViewById(R.id.row3col2);
         tankcol_2.setVisibility(View.INVISIBLE);
-        //l
 
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,11 +69,9 @@ public class TankGameActivity extends AppCompatActivity {
                 }
             }
         });
-
-//        startTimer();
+        recognizeImageViews();
+        startTimer();
     }
-
-
 
     public void setTankPosition(int pos) {
         this.tankPosition = pos;
@@ -117,63 +118,103 @@ public class TankGameActivity extends AppCompatActivity {
             for (int col = 0; col < ids[row].length; col++) {
                 ImageView imageView = findViewById(ids[row][col]);
                 if (imageView != null) {
-                   imageView.setImageDrawable(null);
+                    imageView.setImageDrawable(null);
                 }
             }
         }
         return ids;
     }
 
-//    private void startTimer() {
-//        gameTimer = new CountDownTimer(Long.MAX_VALUE, 1000) { // CountDownTimer with 1 second interval
-//            @Override
-//            public void onTick(long millisUntilFinished) {
-//                launchRocket();
-//                moveOneStepDown();
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                // This method will never be called as we're using Long.MAX_VALUE as the millisInFuture
-//            }
-//        };
-//
-//        gameTimer.start(); // Start the timer
-//    }
-    public  void launchRocket(){
-        ImageView row0_col0 =findViewById(col0[0]);
-        ImageView row0_col1 = findViewById(col1[0]);
-        ImageView row0_col2 = findViewById(col2[0]);
-      int randCol =  getRandomCol();
-        if(randCol == 0){
+    private void startTimer() {
+        gameTimer = new CountDownTimer(Long.MAX_VALUE, 1000) { // CountDownTimer with 1 second interval
+            @Override
+            public void onTick(long millisUntilFinished) {
+                launchItem();
+                moveOneStepDown();
+            }
+
+            @Override
+            public void onFinish() {
+                // This method will never be called as we're using Long.MAX_VALUE as the millisInFuture
+            }
+        };
+        gameTimer.start(); // Start the timer
+    }
+
+    public void launchRocket() {
+        ImageView row0_col0 = findViewById(this.getLeaner_ids()[0][0]);
+        ImageView row0_col1 = findViewById(this.getLeaner_ids()[0][1]);
+        ImageView row0_col2 = findViewById(this.getLeaner_ids()[0][2]);
+        int randCol = getRandomCol();
+        if (randCol == 0) {
             row0_col0.setImageResource(R.drawable.rpghead);
         }
-        if(randCol == 1){
+        if (randCol == 1) {
             row0_col1.setImageResource(R.drawable.rpghead);
         }
-        if(randCol == 2) {
+        if (randCol == 2) {
             row0_col2.setImageResource(R.drawable.rpghead);
         }
     }
 
-    public void moveOneStepDown(){
-        for (int i = 0 ; i < NUM_OF_COLS; i++) {
-            for (int j = NUM_OF_ROWS - 1; j >= 0 ; j--) {
-                ImageView tempView = findViewById(this.getLeaner_ids()[i][j]);
-                if(j ==  NUM_OF_ROWS - 1 && tempView.getDrawable() != null){
-                    tempView.setImageDrawable(null);
-                }else {
-                    if(tempView.getDrawable() != null){
-                        ImageView under_tempView = findViewById(this.getLeaner_ids()[i][j + 1]);
-                        under_tempView.setImageDrawable(tempView.getDrawable());
-                    }
-                }
-
-
-            }
+    public void launchBamba() {
+        ImageView row0_col0 = findViewById(this.getLeaner_ids()[0][0]);
+        ImageView row0_col1 = findViewById(this.getLeaner_ids()[0][1]);
+        ImageView row0_col2 = findViewById(this.getLeaner_ids()[0][2]);
+        int randCol = getRandomCol();
+        if (randCol == 0) {
+            row0_col0.setImageResource(R.drawable.bamba);
+        }
+        if (randCol == 1) {
+            row0_col1.setImageResource(R.drawable.bamba);
+        }
+        if (randCol == 2) {
+            row0_col2.setImageResource(R.drawable.bamba);
         }
     }
 
+    public void launchItem() {
+        Random random = new Random();
+        int num = random.nextInt(2);
+        switch (num) {
+            case 0:
+                launchRocket();
+            case 1:
+                launchBamba();
+        }
+    }
+
+    public void moveOneStepDown() {
+        ImageView col0;
+        ImageView col1;
+        ImageView col2;
+        for (int i = NUM_OF_ROWS - 1; i >= 0; i--) {
+
+            if (i + 1 != 3) {
+                col0 = findViewById(this.getLeaner_ids()[i][0]);
+                col1 = findViewById(this.getLeaner_ids()[i][1]);
+                col2 = findViewById(this.getLeaner_ids()[i][2]);
+
+                if (col0 != null) {
+                    ImageView col0next = findViewById(this.getLeaner_ids()[i + 1][0]);
+                    col0next.setImageDrawable(col0.getDrawable());
+                    col0.setImageDrawable(null);
+                }
+                if (col1 != null) {
+                    ImageView col1next = findViewById(this.getLeaner_ids()[i + 1][1]);
+                    col1next.setImageDrawable(col1.getDrawable());
+                    col1.setImageDrawable(null);
+                }
+                if (col2 != null) {
+                    ImageView col2next = findViewById(this.getLeaner_ids()[i + 1][2]);
+                    col2next.setImageDrawable(col2.getDrawable());
+                    col2.setImageDrawable(null);
+                }
+            }
+        }
+
+
+    }
 
     private void removeOneLive() {
         if (num_of_lives > 0) {
@@ -183,10 +224,12 @@ public class TankGameActivity extends AppCompatActivity {
             num_of_lives--;
         }
     }
+
     public static int getRandomCol() {
         Random random = new Random();
         return random.nextInt(3);  // Generates a random number between 0 (inclusive) and 3 (exclusive)
     }
+
     public int[] getCol0() {
         return col0;
     }
@@ -210,6 +253,7 @@ public class TankGameActivity extends AppCompatActivity {
     public void setCol2(int[] col2) {
         this.col2 = col2;
     }
+
     public int[][] getLeaner_ids() {
         return leaner_ids;
     }
@@ -217,5 +261,4 @@ public class TankGameActivity extends AppCompatActivity {
     public void setLeaner_ids(int[][] leaner_ids) {
         this.leaner_ids = leaner_ids;
     }
-
 }
