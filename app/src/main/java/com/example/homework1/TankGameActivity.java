@@ -185,16 +185,15 @@ public class TankGameActivity extends AppCompatActivity {
             if (this.getType_mat()[3][i] == 0 && this.getTankPosition() == i) {
                 removeOneLive();
                 makeVibrate();
-
             }
             if (this.getType_mat()[3][i] == 1 && this.getTankPosition() == i) {
                 this.setScore(this.getScore() + 1);
                 this.updateScore();
             }
         }
-        if (this.num_of_lives == 0) {
+        if (this.num_of_lives == -1) {
             stopTime();
-            Intent intent = new Intent(TankGameActivity.this, TankGameActivity.class);
+            Intent intent = new Intent(TankGameActivity.this, GameoverActivity.class);
             startActivity(intent);
         }
     }
