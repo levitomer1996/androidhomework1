@@ -1,11 +1,16 @@
 package com.example.homework1;
 
+import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.ImageView;
 import android.util.Log;
+import android.widget.TextView;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.content.Context;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,13 +35,13 @@ public class TankGameActivity extends AppCompatActivity {
     public static final int NUM_OF_ROWS = 4;
 
 
-    private int num_of_lives = 3;
+    private int num_of_lives = 2;
 
 
     private int[][] type_mat = {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
     private int[] lives = {R.id.live0, R.id.live1, R.id.live2};
 
-
+    private TextView scoreTextView;
     private int[][] leaner_ids = {{R.id.row0col0, R.id.row0col1, R.id.row0col2},
             {R.id.row1col0, R.id.row1col1, R.id.row1col2},
             {R.id.row2col0, R.id.row2col1, R.id.row2col2},
@@ -54,15 +59,16 @@ public class TankGameActivity extends AppCompatActivity {
     private MaterialButton rightButton;
     public static final int DELAY = 1000;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private Vibrator vibrator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tank_game);
-
+        this.scoreTextView = findViewById(R.id.scoreTextView);
         leftButton = findViewById(R.id.left_button);
         rightButton = findViewById(R.id.right_button);
-
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         // Setting tank component at the center
 
 
@@ -104,6 +110,10 @@ public class TankGameActivity extends AppCompatActivity {
             }
         };
         gameTimer.start(); // Start the timer
+    }
+
+    private void stopTime() {
+        gameTimer.cancel();
     }
 
     public void setTankPosition(int pos) {
@@ -174,11 +184,18 @@ public class TankGameActivity extends AppCompatActivity {
         for (int i = 0; i < NUM_OF_COLS; i++) {
             if (this.getType_mat()[3][i] == 0 && this.getTankPosition() == i) {
                 removeOneLive();
-                this.num_of_lives--;
-            }
-            if (this.getType_mat()[3][i] == 1 && this.getTankPosition() == i) {
+                makeVibrate();
 
             }
+            if (this.getType_mat()[3][i] == 1 && this.getTankPosition() == i) {
+                this.setScore(this.getScore() + 1);
+                this.updateScore();
+            }
+        }
+        if (this.num_of_lives == 0) {
+            stopTime();
+            Intent intent = new Intent(TankGameActivity.this, TankGameActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -208,11 +225,11 @@ public class TankGameActivity extends AppCompatActivity {
     }
 
     private void removeOneLive() {
-        if (num_of_lives > 0) {
+        if (num_of_lives >= 0) {
             // Get the index of the live image to remove
-            int indexToRemove = num_of_lives - 1; // Remove the last live image
-            findViewById(this.lives[indexToRemove]).setVisibility(View.INVISIBLE);
-            num_of_lives--;
+            int indexToRemove = num_of_lives; // Remove the last live image
+            findViewById(this.lives[this.num_of_lives]).setVisibility(View.INVISIBLE);
+            this.num_of_lives--;
         }
     }
 
@@ -275,4 +292,21 @@ public class TankGameActivity extends AppCompatActivity {
     public void setScore(int score) {
         this.score = score;
     }
+
+    private void updateScore() {
+        scoreTextView.setText("Score: " + this.score);
+    }
+
+    private void makeVibrate() {
+        final VibrationEffect vibrationEffect1;
+        // this is the only type of the vibration which requires system version Oreo (API 26)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            // this effect creates the vibration of default amplitude for 1000ms(1 sec)
+            vibrationEffect1 = VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE);
+            // it is safe to cancel other vibrations currently taking place
+            vibrator.cancel();
+            vibrator.vibrate(vibrationEffect1);
+        }
+    }
+
 }
