@@ -1,7 +1,6 @@
 package com.example.homework1;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -16,29 +15,19 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.button.MaterialButton;
 
-import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-//FINAL REPORt
 public class TankGameActivity extends AppCompatActivity {
     private static final String LOG_TAG = "TankActivity";
-
-    public int getTankPosition() {
-        return tankPosition;
-    }
-
+    private static final int NUM_OF_COLS = 3;
+    private static final int NUM_OF_ROWS = 4;
+    private static final int DELAY = 1000;
 
     private int score = 0;
     private int tankPosition = 1;
-    public static final int NUM_OF_COLS = 3;
-    public static final int NUM_OF_ROWS = 4;
-
-
     private int num_of_lives = 2;
-
-
     private int[][] type_mat = {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
     private int[] lives = {R.id.live0, R.id.live1, R.id.live2};
 
@@ -48,17 +37,10 @@ public class TankGameActivity extends AppCompatActivity {
             {R.id.row2col0, R.id.row2col1, R.id.row2col2},
             {R.id.row3col0, R.id.row3col1, R.id.row3col2}};
 
-    private int[] colisionZone = {0, 0, 0};
-    private int[] col0;
-    private int[] col1;
-    private int[] col2;
-
-    private int[] rocketsOnBoard;
-
     private CountDownTimer gameTimer;
+    private CountDownTimer explosionTimer;
     private MaterialButton leftButton;
     private MaterialButton rightButton;
-    public static final int DELAY = 1000;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private Vibrator vibrator;
 
@@ -70,8 +52,6 @@ public class TankGameActivity extends AppCompatActivity {
         leftButton = findViewById(R.id.left_button);
         rightButton = findViewById(R.id.right_button);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Setting tank component at the center
-
 
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,12 +72,13 @@ public class TankGameActivity extends AppCompatActivity {
                 }
             }
         });
+
         clearImages();
         startTimer();
     }
 
     private void startTimer() {
-        gameTimer = new CountDownTimer(Long.MAX_VALUE, 1000) { // CountDownTimer with 1 second interval
+        gameTimer = new CountDownTimer(Long.MAX_VALUE, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 launchItem();
@@ -110,11 +91,15 @@ public class TankGameActivity extends AppCompatActivity {
                 // This method will never be called as we're using Long.MAX_VALUE as the millisInFuture
             }
         };
-        gameTimer.start(); // Start the timer
+        gameTimer.start();
     }
 
     private void stopTime() {
         gameTimer.cancel();
+    }
+
+    public int getTankPosition() {
+        return tankPosition;
     }
 
     public void setTankPosition(int pos) {
@@ -127,16 +112,12 @@ public class TankGameActivity extends AppCompatActivity {
         int randomCol = getRandomNumber(2);
 
         switch (randomItem) {
-
-            case 0: {
+            case 0:
                 this.setType_mat(0, randomCol, 0);
                 break;
-            }
-
-            case 1: {
+            case 1:
                 this.setType_mat(0, randomCol, 1);
                 break;
-            }
         }
         Log.i(LOG_TAG, "Type is " + this.getType_mat()[0][randomCol]);
         logTypeMat();
@@ -147,31 +128,26 @@ public class TankGameActivity extends AppCompatActivity {
         ImageView imageView = findViewById(this.getLeaner_ids()[r][c]);
 
         switch (this.getType_mat()[r][c]) {
-            case -1: {
+            case -1:
                 imageView.setImageDrawable(null);
                 break;
-            }
-            case 0: {
+            case 0:
                 imageView.setImageResource(R.drawable.rpghead);
                 break;
-            }
-            case 1: {
+            case 1:
                 imageView.setImageResource(R.drawable.bamba);
                 break;
-            }
-
         }
     }
 
     public void moveOneStepDown() {
-        for (int r = NUM_OF_ROWS - 2; r >= 0; r--) { // Adjusted loop condition
+        for (int r = NUM_OF_ROWS - 2; r >= 0; r--) {
             for (int c = 0; c < NUM_OF_COLS; c++) {
                 Log.i("TANK", r + " " + c);
                 if (r + 1 != 4) {
-                    this.setType_mat(r + 1, c, this.getType_mat()[r][c]); // Move the value down one row
+                    this.setType_mat(r + 1, c, this.getType_mat()[r][c]);
                 }
-                this.setType_mat(r, c, -1); // Set the current position to -1
-
+                this.setType_mat(r, c, -1);
                 renderItem(r, c);
                 if (r + 1 != 4) {
                     renderItem(r + 1, c);
@@ -186,6 +162,20 @@ public class TankGameActivity extends AppCompatActivity {
             if (this.getType_mat()[3][i] == 0 && this.getTankPosition() == i) {
                 removeOneLive();
                 makeVibrate();
+                ImageView exp = findViewById(this.getLeaner_ids()[3][this.getTankPosition()]);
+                explosionTimer = new CountDownTimer(Long.MAX_VALUE, 500) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        exp.setImageResource(R.drawable.exp);
+                        explosionTimer.cancel();
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        // This method will never be called as we're using Long.MAX_VALUE as the millisInFuture
+                    }
+                };
+                explosionTimer.start();
             }
             if (this.getType_mat()[3][i] == 1 && this.getTankPosition() == i) {
                 this.setScore(this.getScore() + 1);
@@ -226,8 +216,7 @@ public class TankGameActivity extends AppCompatActivity {
 
     private void removeOneLive() {
         if (num_of_lives >= 0) {
-            // Get the index of the live image to remove
-            int indexToRemove = num_of_lives; // Remove the last live image
+            int indexToRemove = num_of_lives;
             findViewById(this.lives[this.num_of_lives]).setVisibility(View.INVISIBLE);
             this.num_of_lives--;
         }
@@ -299,14 +288,10 @@ public class TankGameActivity extends AppCompatActivity {
 
     private void makeVibrate() {
         final VibrationEffect vibrationEffect1;
-        // this is the only type of the vibration which requires system version Oreo (API 26)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            // this effect creates the vibration of default amplitude for 1000ms(1 sec)
             vibrationEffect1 = VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE);
-            // it is safe to cancel other vibrations currently taking place
             vibrator.cancel();
             vibrator.vibrate(vibrationEffect1);
         }
     }
-
 }
