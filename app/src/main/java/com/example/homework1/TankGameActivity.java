@@ -21,21 +21,41 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class TankGameActivity extends AppCompatActivity {
     private static final String LOG_TAG = "TankActivity";
-    private static final int NUM_OF_COLS = 3;
-    private static final int NUM_OF_ROWS = 4;
-    private static final int DELAY = 1000;
+    private static final int NUM_OF_COLS = 5;
+    private static final int NUM_OF_ROWS = 9;
+    private static final int DELAY = 200;
 
     private int score = 0;
     private int tankPosition = 1;
     private int num_of_lives = 2;
-    private int[][] type_mat = {{-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}, {-1, -1, -1}};
+    private int[][] type_mat = {
+            {-1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1},
+            {-1, -1, -1, -1, -1}
+    };
+
+    private int[][] leaner_ids = {
+            {R.id.row0col0, R.id.row0col1, R.id.row0col2, R.id.row0col3, R.id.row0col4},
+            {R.id.row1col0, R.id.row1col1, R.id.row1col2, R.id.row1col3, R.id.row1col4},
+            {R.id.row2col0, R.id.row2col1, R.id.row2col2, R.id.row2col3, R.id.row2col4},
+            {R.id.row3col0, R.id.row3col1, R.id.row3col2, R.id.row3col3, R.id.row3col4},
+            {R.id.row4col0, R.id.row4col1, R.id.row4col2, R.id.row4col3, R.id.row4col4},
+            {R.id.row5col0, R.id.row5col1, R.id.row5col2, R.id.row5col3, R.id.row5col4},
+            {R.id.row6col0, R.id.row6col1, R.id.row6col2, R.id.row6col3, R.id.row6col4},
+            {R.id.row7col0, R.id.row7col1, R.id.row7col2, R.id.row7col3, R.id.row7col4},
+            {R.id.row8col0, R.id.row8col1, R.id.row8col2, R.id.row8col3, R.id.row8col4}
+    };
+
     private int[] lives = {R.id.live0, R.id.live1, R.id.live2};
 
     private TextView scoreTextView;
-    private int[][] leaner_ids = {{R.id.row0col0, R.id.row0col1, R.id.row0col2},
-            {R.id.row1col0, R.id.row1col1, R.id.row1col2},
-            {R.id.row2col0, R.id.row2col1, R.id.row2col2},
-            {R.id.row3col0, R.id.row3col1, R.id.row3col2}};
+
 
     private CountDownTimer gameTimer;
     private CountDownTimer explosionTimer;
@@ -66,7 +86,7 @@ public class TankGameActivity extends AppCompatActivity {
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tankPosition < 2) {
+                if (tankPosition < NUM_OF_COLS - 1) {
                     setTankPosition(tankPosition + 1);
                     renderTankPos(tankPosition);
                 }
@@ -78,7 +98,7 @@ public class TankGameActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
-        gameTimer = new CountDownTimer(Long.MAX_VALUE, 1000) {
+        gameTimer = new CountDownTimer(Long.MAX_VALUE, DELAY) {
             @Override
             public void onTick(long millisUntilFinished) {
                 launchItem();
@@ -109,7 +129,7 @@ public class TankGameActivity extends AppCompatActivity {
     public void launchItem() {
         Random random = new Random();
         int randomItem = getRandomNumber(1);
-        int randomCol = getRandomNumber(2);
+        int randomCol = getRandomNumber(NUM_OF_COLS - 1);
 
         switch (randomItem) {
             case 0:
@@ -144,12 +164,12 @@ public class TankGameActivity extends AppCompatActivity {
         for (int r = NUM_OF_ROWS - 2; r >= 0; r--) {
             for (int c = 0; c < NUM_OF_COLS; c++) {
                 Log.i("TANK", r + " " + c);
-                if (r + 1 != 4) {
+                if (r + 1 != NUM_OF_ROWS) {
                     this.setType_mat(r + 1, c, this.getType_mat()[r][c]);
                 }
                 this.setType_mat(r, c, -1);
                 renderItem(r, c);
-                if (r + 1 != 4) {
+                if (r + 1 != NUM_OF_ROWS) {
                     renderItem(r + 1, c);
                     renderTankPos(this.getTankPosition());
                 }
@@ -159,10 +179,10 @@ public class TankGameActivity extends AppCompatActivity {
 
     public void detectCrash() {
         for (int i = 0; i < NUM_OF_COLS; i++) {
-            if (this.getType_mat()[3][i] == 0 && this.getTankPosition() == i) {
+            if (this.getType_mat()[8][i] == 0 && this.getTankPosition() == i) {
                 removeOneLive();
                 makeVibrate();
-                ImageView exp = findViewById(this.getLeaner_ids()[3][this.getTankPosition()]);
+                ImageView exp = findViewById(this.getLeaner_ids()[8][this.getTankPosition()]);
                 explosionTimer = new CountDownTimer(Long.MAX_VALUE, 500) {
                     @Override
                     public void onTick(long millisUntilFinished) {
@@ -177,7 +197,7 @@ public class TankGameActivity extends AppCompatActivity {
                 };
                 explosionTimer.start();
             }
-            if (this.getType_mat()[3][i] == 1 && this.getTankPosition() == i) {
+            if (this.getType_mat()[NUM_OF_ROWS - 1][i] == 1 && this.getTankPosition() == i) {
                 this.setScore(this.getScore() + 1);
                 this.updateScore();
             }
@@ -223,9 +243,9 @@ public class TankGameActivity extends AppCompatActivity {
     }
 
     public void renderTankPos(int pos) {
-        ImageView tankcol_0 = findViewById(R.id.row3col0);
-        ImageView tankcol_1 = findViewById(R.id.row3col1);
-        ImageView tankcol_2 = findViewById(R.id.row3col2);
+        ImageView tankcol_0 = findViewById(R.id.row8col0);
+        ImageView tankcol_1 = findViewById(R.id.row8col1);
+        ImageView tankcol_2 = findViewById(R.id.row8col2);
 
         switch (pos) {
             case 0:
