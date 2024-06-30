@@ -1,6 +1,7 @@
 package com.example.homework1;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -23,11 +24,15 @@ public class TankGameActivity extends AppCompatActivity {
     private static final String LOG_TAG = "TankActivity";
     private static final int NUM_OF_COLS = 5;
     private static final int NUM_OF_ROWS = 9;
-    private static final int DELAY = 200;
+    private MediaPlayer mediaPlayer;
 
     private int score = 0;
+    private int DELAY = 500;
+
+    private int distance = 0;
     private int tankPosition = 1;
     private int num_of_lives = 2;
+
     private int[][] type_mat = {
             {-1, -1, -1, -1, -1},
             {-1, -1, -1, -1, -1},
@@ -55,6 +60,7 @@ public class TankGameActivity extends AppCompatActivity {
     private int[] lives = {R.id.live0, R.id.live1, R.id.live2};
 
     private TextView scoreTextView;
+    private TextView distanceTextView;
 
 
     private CountDownTimer gameTimer;
@@ -98,12 +104,15 @@ public class TankGameActivity extends AppCompatActivity {
     }
 
     private void startTimer() {
+
         gameTimer = new CountDownTimer(Long.MAX_VALUE, DELAY) {
+
             @Override
             public void onTick(long millisUntilFinished) {
                 launchItem();
                 moveOneStepDown();
                 detectCrash();
+
             }
 
             @Override
@@ -175,6 +184,8 @@ public class TankGameActivity extends AppCompatActivity {
                 }
             }
         }
+        this.setDistance(this.getDistance() + 1);
+        setDistanceText(this.getDistance());
     }
 
     public void detectCrash() {
@@ -314,4 +325,42 @@ public class TankGameActivity extends AppCompatActivity {
             vibrator.vibrate(vibrationEffect1);
         }
     }
+
+    public void setDistanceText(int distance) {
+        this.distanceTextView = findViewById(R.id.distanceTextView);
+        if (this.distanceTextView != null) {
+            distanceTextView.setText("Distance: " + distance);
+        }
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
+    }
+
+    private void playSound(int soundResourceId) {
+        // Release any previously playing media player
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+
+        // Create a new media player instance
+        mediaPlayer = MediaPlayer.create(this, soundResourceId);
+
+        // Set a listener to release the media player once the sound has finished playing
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.release();
+                mediaPlayer = null;
+            }
+        });
+
+        // Start playing the sound
+        mediaPlayer.start();
+    }
+
 }

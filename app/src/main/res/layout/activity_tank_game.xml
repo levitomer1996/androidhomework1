@@ -429,7 +429,6 @@
                 android:layout_weight="1"
                 android:src="@drawable/tank" />
         </LinearLayout>
-
     </LinearLayout>
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -471,6 +470,7 @@
         android:layout_marginTop="20dp"
         android:orientation="horizontal">
 
+
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/live0"
             android:layout_width="wrap_content"
@@ -492,6 +492,7 @@
             android:layout_weight="1"
             app:srcCompat="@drawable/live" />
 
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -507,7 +508,18 @@
             android:layout_height="wrap_content"
             android:text="Score: 0"
             android:textSize="24sp" />
-
     </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <!-- Distance TextView -->
+    <TextView
+        android:id="@+id/distanceTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Distance: 0"
+        android:textSize="24sp" />
 
 </RelativeLayout>
