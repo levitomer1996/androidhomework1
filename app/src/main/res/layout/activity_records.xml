@@ -53,33 +53,7 @@
                 android:textStyle="bold" />
         </TableRow>
 
-        <!-- Data Rows -->
-        <!-- You can add multiple rows like this, or dynamically generate rows from your Java code -->
-        <TableRow>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Player 1"
-                android:padding="8dp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="1000"
-                android:padding="8dp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="USA"
-                android:padding="8dp" />
-        </TableRow>
-
-        <!-- Add more rows as needed -->
+        <!-- Data Rows will be added dynamically -->
 
     </TableLayout>
 

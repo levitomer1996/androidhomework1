@@ -14,6 +14,7 @@ import android.content.Context;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.homework1.localstorage.RecordsSaver;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.Random;
@@ -26,6 +27,9 @@ public class TankGameActivity extends AppCompatActivity {
     private static final int NUM_OF_ROWS = 9;
     private MediaPlayer mediaPlayer;
 
+
+    private int max_record;
+    private RecordsSaver rs;
     private int score = 0;
     private int DELAY = 500;
 
@@ -74,6 +78,9 @@ public class TankGameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tank_game);
+
+        this.rs = new RecordsSaver(this); // Initialize RecordsSaver here
+
         this.scoreTextView = findViewById(R.id.scoreTextView);
         leftButton = findViewById(R.id.left_button);
         rightButton = findViewById(R.id.right_button);
@@ -103,6 +110,7 @@ public class TankGameActivity extends AppCompatActivity {
         startTimer();
     }
 
+
     private void startTimer() {
 
         gameTimer = new CountDownTimer(Long.MAX_VALUE, DELAY) {
@@ -117,7 +125,9 @@ public class TankGameActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                // This method will never be called as we're using Long.MAX_VALUE as the millisInFuture
+                Log.i(LOG_TAG, "Time finished");
+
+
             }
         };
         gameTimer.start();
@@ -148,8 +158,7 @@ public class TankGameActivity extends AppCompatActivity {
                 this.setType_mat(0, randomCol, 1);
                 break;
         }
-        Log.i(LOG_TAG, "Type is " + this.getType_mat()[0][randomCol]);
-        logTypeMat();
+
         renderItem(0, randomCol);
     }
 
@@ -172,7 +181,6 @@ public class TankGameActivity extends AppCompatActivity {
     public void moveOneStepDown() {
         for (int r = NUM_OF_ROWS - 2; r >= 0; r--) {
             for (int c = 0; c < NUM_OF_COLS; c++) {
-                Log.i("TANK", r + " " + c);
                 if (r + 1 != NUM_OF_ROWS) {
                     this.setType_mat(r + 1, c, this.getType_mat()[r][c]);
                 }
@@ -215,8 +223,11 @@ public class TankGameActivity extends AppCompatActivity {
         }
         if (this.num_of_lives == -1) {
             stopTime();
+
             Intent intent = new Intent(TankGameActivity.this, GameoverActivity.class);
+            intent.putExtra("score", this.getScore());
             startActivity(intent);
+
         }
     }
 
@@ -257,22 +268,45 @@ public class TankGameActivity extends AppCompatActivity {
         ImageView tankcol_0 = findViewById(R.id.row8col0);
         ImageView tankcol_1 = findViewById(R.id.row8col1);
         ImageView tankcol_2 = findViewById(R.id.row8col2);
+        ImageView tankcol_3 = findViewById(R.id.row8col3);
+        ImageView tankcol_4 = findViewById(R.id.row8col4);
+
 
         switch (pos) {
             case 0:
                 tankcol_0.setImageResource(R.drawable.tank);
                 tankcol_1.setImageDrawable(null);
                 tankcol_2.setImageDrawable(null);
+                tankcol_3.setImageDrawable(null);
+                tankcol_4.setImageDrawable(null);
                 break;
             case 1:
                 tankcol_0.setImageDrawable(null);
                 tankcol_1.setImageResource(R.drawable.tank);
                 tankcol_2.setImageDrawable(null);
+                tankcol_3.setImageDrawable(null);
+                tankcol_4.setImageDrawable(null);
                 break;
             case 2:
                 tankcol_0.setImageDrawable(null);
                 tankcol_1.setImageDrawable(null);
                 tankcol_2.setImageResource(R.drawable.tank);
+                tankcol_3.setImageDrawable(null);
+                tankcol_4.setImageDrawable(null);
+                break;
+            case 3:
+                tankcol_0.setImageDrawable(null);
+                tankcol_1.setImageDrawable(null);
+                tankcol_2.setImageDrawable(null);
+                tankcol_3.setImageResource(R.drawable.tank);
+                tankcol_4.setImageDrawable(null);
+                break;
+            case 4:
+                tankcol_0.setImageDrawable(null);
+                tankcol_1.setImageDrawable(null);
+                tankcol_2.setImageDrawable(null);
+                tankcol_3.setImageDrawable(null);
+                tankcol_4.setImageResource(R.drawable.tank);
                 break;
         }
     }
@@ -362,5 +396,14 @@ public class TankGameActivity extends AppCompatActivity {
         // Start playing the sound
         mediaPlayer.start();
     }
+
+    public int getMax_record() {
+        return max_record;
+    }
+
+    public void setMax_record(int max_record) {
+        this.max_record = max_record;
+    }
+
 
 }
