@@ -15,6 +15,7 @@ import android.content.Context;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.homework1.localstorage.RecordsSaver;
+import com.example.homework1.utilies.SoundPlayer;
 import com.google.android.material.button.MaterialButton;
 
 import java.util.Random;
@@ -27,7 +28,7 @@ public class TankGameActivity extends AppCompatActivity {
     private static final int NUM_OF_ROWS = 9;
     private MediaPlayer mediaPlayer;
 
-
+    private SoundPlayer soundPlayer;
     private int max_record;
     private RecordsSaver rs;
     private int score = 0;
@@ -80,7 +81,7 @@ public class TankGameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tank_game);
 
         this.rs = new RecordsSaver(this); // Initialize RecordsSaver here
-
+        this.soundPlayer = new SoundPlayer(this);
         this.scoreTextView = findViewById(R.id.scoreTextView);
         leftButton = findViewById(R.id.left_button);
         rightButton = findViewById(R.id.right_button);
@@ -205,6 +206,7 @@ public class TankGameActivity extends AppCompatActivity {
                 explosionTimer = new CountDownTimer(Long.MAX_VALUE, 500) {
                     @Override
                     public void onTick(long millisUntilFinished) {
+                        soundPlayer.playSound(R.raw.esound);
                         exp.setImageResource(R.drawable.exp);
                         explosionTimer.cancel();
                     }
@@ -214,6 +216,7 @@ public class TankGameActivity extends AppCompatActivity {
                         // This method will never be called as we're using Long.MAX_VALUE as the millisInFuture
                     }
                 };
+
                 explosionTimer.start();
             }
             if (this.getType_mat()[NUM_OF_ROWS - 1][i] == 1 && this.getTankPosition() == i) {
