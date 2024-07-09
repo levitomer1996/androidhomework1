@@ -79,7 +79,8 @@ public class TankGameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tank_game);
-
+        Intent intent = getIntent();
+        DELAY = intent.getIntExtra("DELAY", 500);
         this.rs = new RecordsSaver(this); // Initialize RecordsSaver here
         this.soundPlayer = new SoundPlayer(this);
         this.scoreTextView = findViewById(R.id.scoreTextView);

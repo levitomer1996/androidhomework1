@@ -23,4 +23,34 @@
         android:layout_below="@id/start_game_button"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/fast_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fast"
+        android:background="@color/black"
+        android:layout_below="@id/view_records_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/slow_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Slow"
+        android:background="@color/black"
+        android:layout_below="@id/fast_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:id="@+id/sensor_mode_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sensor Mode"
+        android:background="@color/black"
+        android:layout_below="@id/slow_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
 </RelativeLayout>

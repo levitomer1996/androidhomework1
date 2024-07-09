@@ -9,9 +9,8 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.zip.Inflater;
-
 public class MainActivity extends AppCompatActivity {
+    private int DELAY = 500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,8 +22,9 @@ public class MainActivity extends AppCompatActivity {
         startGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Intent to start the TankGameActivity
+                // Intent to start the TankGameActivity with DELAY
                 Intent intent = new Intent(MainActivity.this, TankGameActivity.class);
+                intent.putExtra("DELAY", DELAY);
                 startActivity(intent);
             }
         });
@@ -39,6 +39,28 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // Find the slow button and set an onClickListener
+        Button slowButton = findViewById(R.id.slow_button);
+        slowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setDELAY(1000);
+            }
+        });
+
+        // Find the fast button and set an onClickListener
+        Button fastButton = findViewById(R.id.fast_button);
+        fastButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setDELAY(500);
+            }
+        });
+
+        // Find the sensor mode button and set an onClickListener
+        Button sensorModeButton = findViewById(R.id.sensor_mode_button);
+       
     }
 
     @Override
@@ -46,5 +68,13 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    public int getDELAY() {
+        return DELAY;
+    }
+
+    public void setDELAY(int DELAY) {
+        this.DELAY = DELAY;
     }
 }
