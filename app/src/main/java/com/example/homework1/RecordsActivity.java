@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -71,8 +72,28 @@ public class RecordsActivity extends AppCompatActivity {
         TextView locationTextView = createTextView(location);
         row.addView(locationTextView);
 
+        // Add Location button using the extracted method
+        Button locationButton = createLocationButton(location);
+        row.addView(locationButton);
+
         tableLayout.addView(row);
         Log.d(TAG, "Added TableRow to TableLayout.");
+    }
+
+    private Button createLocationButton(String location) {
+        Button locationButton = new Button(this);
+        locationButton.setText("Location");
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Start MapsActivity with location data
+                Intent intent = new Intent(RecordsActivity.this, MapsActivity.class);
+                intent.putExtra("location", location);
+                startActivity(intent);
+                Log.d(TAG, "Location button clicked, navigating to MapsActivity with location: " + location);
+            }
+        });
+        return locationButton;
     }
 
     private TextView createTextView(String text) {

@@ -1,16 +1,20 @@
 package com.example.homework1;
 
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.view.View;
-import android.widget.ImageView;
-import android.util.Log;
-import android.widget.TextView;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.content.Context;
+import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,17 +26,20 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-public class TankGameActivity extends AppCompatActivity {
+public class TankGameActivity extends AppCompatActivity implements SensorEventListener {
     private static final String LOG_TAG = "TankActivity";
     private static final int NUM_OF_COLS = 5;
     private static final int NUM_OF_ROWS = 9;
-    private MediaPlayer mediaPlayer;
+    private static final float TILT_THRESHOLD = 2.0f; // Adjust this threshold as needed
 
+    private MediaPlayer mediaPlayer;
     private SoundPlayer soundPlayer;
     private int max_record;
     private RecordsSaver rs;
     private int score = 0;
     private int DELAY = 500;
+    private boolean SENSOR_MODE = false;
+
 
     private int distance = 0;
     private int tankPosition = 1;
@@ -67,13 +74,14 @@ public class TankGameActivity extends AppCompatActivity {
     private TextView scoreTextView;
     private TextView distanceTextView;
 
-
     private CountDownTimer gameTimer;
     private CountDownTimer explosionTimer;
     private MaterialButton leftButton;
     private MaterialButton rightButton;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private Vibrator vibrator;
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,30 +89,29 @@ public class TankGameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tank_game);
         Intent intent = getIntent();
         DELAY = intent.getIntExtra("DELAY", 500);
+        SENSOR_MODE = intent.getBooleanExtra("SENSOR", false);
         this.rs = new RecordsSaver(this); // Initialize RecordsSaver here
         this.soundPlayer = new SoundPlayer(this);
         this.scoreTextView = findViewById(R.id.scoreTextView);
         leftButton = findViewById(R.id.left_button);
         rightButton = findViewById(R.id.right_button);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         leftButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tankPosition > 0) {
-                    setTankPosition(tankPosition - 1);
-                    renderTankPos(tankPosition);
-                }
+                moveTankLeft();
             }
         });
 
         rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (tankPosition < NUM_OF_COLS - 1) {
-                    setTankPosition(tankPosition + 1);
-                    renderTankPos(tankPosition);
-                }
+                moveTankRight();
             }
         });
 
@@ -112,24 +119,61 @@ public class TankGameActivity extends AppCompatActivity {
         startTimer();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = event.values[0];
+            if (x > TILT_THRESHOLD) {
+                moveTankLeft();
+            } else if (x < -TILT_THRESHOLD) {
+                moveTankRight();
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Implement if sensor accuracy changes need to be handled
+    }
+
+    private void moveTankLeft() {
+        if (tankPosition > 0) {
+            setTankPosition(tankPosition - 1);
+            renderTankPos(tankPosition);
+        }
+    }
+
+    private void moveTankRight() {
+        if (tankPosition < NUM_OF_COLS - 1) {
+            setTankPosition(tankPosition + 1);
+            renderTankPos(tankPosition);
+        }
+    }
 
     private void startTimer() {
-
         gameTimer = new CountDownTimer(Long.MAX_VALUE, DELAY) {
-
             @Override
             public void onTick(long millisUntilFinished) {
                 launchItem();
                 moveOneStepDown();
                 detectCrash();
-
             }
 
             @Override
             public void onFinish() {
                 Log.i(LOG_TAG, "Time finished");
-
-
             }
         };
         gameTimer.start();
@@ -166,7 +210,6 @@ public class TankGameActivity extends AppCompatActivity {
 
     public void renderItem(int r, int c) {
         ImageView imageView = findViewById(this.getLeaner_ids()[r][c]);
-
         switch (this.getType_mat()[r][c]) {
             case -1:
                 imageView.setImageDrawable(null);
@@ -217,7 +260,6 @@ public class TankGameActivity extends AppCompatActivity {
                         // This method will never be called as we're using Long.MAX_VALUE as the millisInFuture
                     }
                 };
-
                 explosionTimer.start();
             }
             if (this.getType_mat()[NUM_OF_ROWS - 1][i] == 1 && this.getTankPosition() == i) {
@@ -227,11 +269,9 @@ public class TankGameActivity extends AppCompatActivity {
         }
         if (this.num_of_lives == -1) {
             stopTime();
-
             Intent intent = new Intent(TankGameActivity.this, GameoverActivity.class);
             intent.putExtra("score", this.getScore());
             startActivity(intent);
-
         }
     }
 
@@ -274,7 +314,6 @@ public class TankGameActivity extends AppCompatActivity {
         ImageView tankcol_2 = findViewById(R.id.row8col2);
         ImageView tankcol_3 = findViewById(R.id.row8col3);
         ImageView tankcol_4 = findViewById(R.id.row8col4);
-
 
         switch (pos) {
             case 0:
@@ -380,15 +419,10 @@ public class TankGameActivity extends AppCompatActivity {
     }
 
     private void playSound(int soundResourceId) {
-        // Release any previously playing media player
         if (mediaPlayer != null) {
             mediaPlayer.release();
         }
-
-        // Create a new media player instance
         mediaPlayer = MediaPlayer.create(this, soundResourceId);
-
-        // Set a listener to release the media player once the sound has finished playing
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -396,8 +430,6 @@ public class TankGameActivity extends AppCompatActivity {
                 mediaPlayer = null;
             }
         });
-
-        // Start playing the sound
         mediaPlayer.start();
     }
 
@@ -408,6 +440,4 @@ public class TankGameActivity extends AppCompatActivity {
     public void setMax_record(int max_record) {
         this.max_record = max_record;
     }
-
-
 }

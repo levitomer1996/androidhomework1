@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
     private int DELAY = 500;
+    private boolean sensorMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
                 // Intent to start the TankGameActivity with DELAY
                 Intent intent = new Intent(MainActivity.this, TankGameActivity.class);
                 intent.putExtra("DELAY", DELAY);
+                intent.putExtra("SENSOR", sensorMode);
                 startActivity(intent);
             }
         });
@@ -60,7 +62,12 @@ public class MainActivity extends AppCompatActivity {
 
         // Find the sensor mode button and set an onClickListener
         Button sensorModeButton = findViewById(R.id.sensor_mode_button);
-       
+        sensorModeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleSesorMode();
+            }
+        });
     }
 
     @Override
@@ -76,5 +83,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void setDELAY(int DELAY) {
         this.DELAY = DELAY;
+    }
+
+    public void toggleSesorMode() {
+        this.setSensorMode(this.isSensorMode() ? false : true);
+    }
+
+    public boolean isSensorMode() {
+        return sensorMode;
+    }
+
+    public void setSensorMode(boolean sensorMode) {
+        this.sensorMode = sensorMode;
     }
 }
